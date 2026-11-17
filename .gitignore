@@ -1,0 +1,15 @@
+.vercel
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+_backup-sebelum-perbaikan/
+kenney_watercraft-pack.zip
+kenney_watercraft-pack/Models/OBJ format/
+kenney_watercraft-pack/Models/FBX format/
+kenney_watercraft-pack/Overview.html
+.env
+.env.*
+*.url
+*.mtl
+*.obj

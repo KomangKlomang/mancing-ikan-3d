@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b2a4a" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23f59e0b'/%3E%3C/svg%3E" />
+  <title>Reel Rich 3D: Idle Fishing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Russo+One&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="canvas-wrap" aria-hidden="true"></div>
+
+  <div id="ui-layer">
+    <header id="top-hud">
+      <div class="pill">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="#fbbf24"/>
+          <path d="M12 6v12M9 9h4.5a1.5 1.5 0 0 1 0 3H9m0 0h5a1.5 1.5 0 0 1 0 3H9" stroke="#091326" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>
+        <div>
+          <div class="coin-val" id="coins-txt">0</div>
+          <div class="sub-stat" id="mult-txt">Nilai x1</div>
+        </div>
+      </div>
+
+      <div class="hud-btns">
+        <button class="icon-btn interactive" id="menu-btn" aria-pressed="false" aria-label="Buka menu upgrade" title="Upgrade / Kapal / Ikan" hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+          <span>MENU</span>
+        </button>
+        <button class="icon-btn interactive" id="auto-btn" aria-pressed="false" aria-label="Auto pancing">
+          <span id="auto-dot"></span><span id="auto-label">AUTO</span>
+        </button>
+        <button class="icon-btn interactive" id="cam-btn" title="Kamera: First Person (ketuk untuk ganti)" aria-label="Ganti sudut kamera">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 8h3l2-3h8l2 3h3v11H3z"/><circle cx="12" cy="13" r="3.5"/>
+          </svg>
+          <span id="cam-label" style="font-size:0.7rem;">FP</span>
+        </button>
+        <button class="icon-btn interactive" id="full-btn" aria-label="Layar penuh" hidden>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="play-zone">
+      <div id="trophy-chip"></div>
+
+      <div id="tension-box">
+        <div class="tension-header">
+          <span id="tension-hint">Jaga penanda di zona hijau</span>
+          <span id="fight-weight"></span>
+        </div>
+        <div class="bar-track">
+          <div id="sweet-zone"></div>
+          <div id="tension-cursor"></div>
+        </div>
+        <div class="progress-track"><div id="reel-progress"></div></div>
+      </div>
+    </main>
+
+    <section id="action-zone">
+      <button id="cast-btn" class="interactive">LEMPAR KAIL</button>
+      <div id="status-hint"></div>
+    </section>
+
+    <aside id="bottom-panel" class="interactive">
+      <nav class="tabs" aria-label="Menu game">
+        <button class="tab-btn active" data-tab="tab-upgrades">UPGRADE</button>
+        <button class="tab-btn" data-tab="tab-boats">KAPAL</button>
+        <button class="tab-btn" data-tab="tab-book" id="book-tab-btn">IKAN</button>
+        <button class="tab-btn" data-tab="tab-voyage">PRESTIGE</button>
+      </nav>
+      <div class="tab-content active" id="tab-upgrades"></div>
+      <div class="tab-content" id="tab-boats"></div>
+      <div class="tab-content" id="tab-book"><div class="book-grid" id="book-grid"></div></div>
+      <div class="tab-content" id="tab-voyage"></div>
+    </aside>
+  </div>
+
+  <div id="shop-scrim" class="interactive" hidden aria-hidden="true"></div>
+
+  <!-- Popup hasil tangkapan -->
+  <div id="catch-modal" role="dialog" aria-modal="true" aria-labelledby="catch-name">
+    <div class="catch-card interactive">
+      <div class="catch-eyebrow">Tangkapan berhasil</div>
+      <div id="catch-preview" aria-hidden="true"></div>
+      <span class="rarity-tag" id="catch-rarity"></span>
+      <div class="catch-title" id="catch-name"></div>
+      <div class="catch-meta" id="catch-meta"></div>
+      <div class="catch-bonus" id="catch-bonus"></div>
+      <button id="catch-claim-btn">AMBIL</button>
+    </div>
+  </div>
+
+  <div id="loading">
+    <div>MEMUAT ASET 3D…</div>
+    <div class="loading-bar"><span></span></div>
+  </div>
+
+  <div id="modal-backdrop">
+    <div class="modal-card interactive">
+      <span class="rarity-tag" id="modal-tag" style="background:#7c3aed;color:#fff;">Hasil selama pergi</span>
+      <p id="offline-desc" style="font-size:0.88rem;color:#cbd5e1;margin:10px 0;"></p>
+      <div class="coin-val" id="offline-coins" style="font-size:1.6rem;margin-bottom:16px;"></div>
+      <div class="modal-actions">
+        <button class="buy-btn" id="modal-cancel">BATAL</button>
+        <button class="buy-btn" id="claim-offline-btn">OKE</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "Reel Rich 3D: Idle Fishing",
+  "short_name": "ReelRich3D",
+  "description": "Lightweight 3D Idle Fishing Game for Web, Android & iOS",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#8fd4f5",
+  "theme_color": "#0b2a4a",
+  "categories": ["games", "entertainment"]
+}
